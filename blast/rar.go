@@ -1,4 +1,4 @@
-package blast_rar
+package blast
 
 import (
 	"blast-rar/dict"
@@ -38,7 +38,7 @@ func Rar(fileName string) _struct.Error {
 	}
 
 	blast := rarBlast(file)
-	fmt.Println(blast)
+	fmt.Println("尝试：", blast, " ", "√")
 	return err
 }
 
@@ -55,6 +55,7 @@ func rarBlast(file *os.File) string {
 		if !check.Is {
 			return dict.Dict[i]
 		}
+		fmt.Println("尝试：", dict.Dict[i], " ", "x")
 	}
 	return ""
 }
