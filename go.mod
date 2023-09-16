@@ -1,4 +1,4 @@
-module blast-rar
+module Detective
 
 go 1.19
 
