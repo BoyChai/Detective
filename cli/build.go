@@ -1,8 +1,8 @@
 package main
 
 import (
-	"blast-rar/blast"
-	"blast-rar/dict"
+	"Detective/blast"
+	"Detective/dict"
 	"flag"
 	"fmt"
 )

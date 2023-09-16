@@ -1,7 +1,7 @@
 package dict
 
 import (
-	"blast-rar/struct"
+	"Detective/struct"
 	"bufio"
 	"io"
 	"os"

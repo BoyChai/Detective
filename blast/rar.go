@@ -1,8 +1,8 @@
 package blast
 
 import (
-	"blast-rar/dict"
-	"blast-rar/struct"
+	"Detective/dict"
+	"Detective/struct"
 	"errors"
 	"fmt"
 	"github.com/nwaples/rardecode"
