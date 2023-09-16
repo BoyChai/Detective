@@ -1,0 +1,100 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: detective-archive
+  namespace: cicd-services
+spec:
+  workspaces:
+    - name: repo-pvc
+    - name: tools-pvc
+    - name: git-auth
+  params:
+    - name: gitRepo
+      type: string
+      default: "https://code.boychai.xyz/BoyChai/Detective.git"
+    - name: branch
+      type: string
+      default: "main"
+    - name: imgTag
+      type: string
+  tasks:
+    - name: clone
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: repo-pvc
+        - name: basic-auth
+          workspace: git-auth
+      params:
+        - name: url
+          value: $(params.gitRepo)
+        - name: revision
+          value: $(params.branch)
+    - name: build
+      params:
+        - name: tag
+          value: $(params.imgTag)
+      workspaces:
+        - name: source
+          workspace: repo-pvc
+      runAfter:
+        - clone
+      taskSpec:
+        workspaces:
+          - name: source
+        steps:
+          - name: go-build
+            workingDir: $(workspaces.source.path)
+            image: golang:1.20
+            script: |
+              # 编译并构建 Windows x86 平台的可执行文件
+              GOOS=windows GOARCH=amd64 go build -o archive/$(params.tag)/windwos_amd64/detective.exe
+
+              # 编译并构建 Linux x86 平台的可执行文件
+              GOOS=linux GOARCH=amd64 go build -o archive/$(params.tag)/linux_amd64/detective
+
+              # 编译并构建 macOS x86 平台的可执行文件
+              GOOS=darwin GOARCH=amd64 go build -o archive/$(params.tag)/darwin/detective
+
+              # 编译并构建 Windows ram 平台的可执行文件
+              GOOS=windows GOARCH=ram go build -o archive/$(params.tag)/windows_arm/detective.exe
+
+              # 编译并构建 Linux ram 平台的可执行文件
+              GOOS=linux GOARCH=arm go build -o archive/$(params.tag)/linux_arm/detective
+
+              # 编译并构建 macOS ram 平台的可执行文件
+              GOOS=darwin GOARCH=arm go build -o archive/$(params.tag)/darwin_arm/detective
+    - name: archive
+      params:
+        - name: tag
+          value: $(params.imgTag)
+      workspaces:
+        - name: source
+          workspace: repo-pvc
+        - name: tools
+          workspace: tools-pvc
+      runAfter:
+        - build
+      taskSpec:
+        workspaces:
+          - name: source
+        steps:
+          - name: go-archive
+            workingDir: $(workspaces.source.path)/archive/$(params.tag)
+            image: busybox:1.36
+            script: |
+              mkdir ./output/
+              zip="$(workspaces.tools.path)/bin/zip"
+              # win_amd64
+              $zip -j output/detective_$(params.tag)_windows_amd64.zip windows_amd64/detective.exe
+              # lin_amd64
+              tar -czf output/detective_$(params.tag)_linux_amd64.tar.gz -C linux_amd64/ detective
+              # darwin_amd64
+              tar -czf output/detective_$(params.tag)_darwin_amd64.tar.gz -C darwin_amd64/ detective
+              # win_ram
+              $zip -j output/detective_$(params.tag)_windows_ram.zip windows_ram/detective.exe
+              # lin_ram
+              tar -czf output/detective_$(params.tag)_linux_ram.tar.gz -C linux_ram/ detective
+              # darwin_amd64
+              tar -czf output/detective_$(params.tag)_darwin_ram.tar.gz -C darwin_ram/ detective
