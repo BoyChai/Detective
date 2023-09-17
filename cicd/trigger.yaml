@@ -1,0 +1,59 @@
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: detective-archive-listener
+  namespace: cicd-services
+spec:
+  resources:
+    kubernetesResource:
+      serviceType: NodePort
+  serviceAccountName: triggers-sa
+  triggers:
+    - bindings:
+        - ref: detective-archive-pipeline-binding
+      template:
+        ref: detective-archive-pipeline-template
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerBinding
+metadata:
+  name: detective-archive-pipeline-binding
+  namespace: cicd-services
+spec:
+  params:
+    - name: imgTag
+      value: "$(body.ref)"
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: detective-archive-pipeline-template
+  namespace: cicd-services
+spec:
+  params:
+    - name: imgTag
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1
+      kind: PipelineRun
+      metadata:
+        generateName: detective-archive-run-
+        generation: 1
+        namespace: cicd-services
+      spec:
+        params:
+          - name: branch
+            value: main
+          - name: gitRepo
+            value: https://code.boychai.xyz/BoyChai/Detective.git
+          - name: imgTag
+            value: "$(tt.params.imgTag)"
+        pipelineRef:
+          name: detective-archive
+        workspaces:
+          - name: "git-auth"
+            secret:
+              secretName: boychai-code-auth-secret
+          - name: "repo-pvc"
+            persistentVolumeClaim:
+              claimName: detective-build-pvc
