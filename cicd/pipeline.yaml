@@ -86,6 +86,10 @@ spec:
             workingDir: $(workspaces.source.path)/archive/$(params.tag)
             image: registry.boychai.xyz/tools/zip:0.0.1
             script: |
+              directory="output"
+              if [ ! -d "$directory" ]; then
+                  mkdir -p "$directory" 
+              fi
               # win_amd64
               zip -j output/detective_$(params.tag)_windows_amd64.zip windows_amd64/detective.exe
               # lin_amd64

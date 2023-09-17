@@ -23,7 +23,7 @@ metadata:
 spec:
   params:
     - name: imgTag
-      value: "$(body.ref)"
+      value: "$(body.release.tag_name)"
 ---
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
