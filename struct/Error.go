@@ -1,8 +1,10 @@
 package _struct
 
+import "fmt"
+
 type ErrorCode int
 
-// NoPass 密码错误
+// NoPass 无密码或密码错误
 const NoPass ErrorCode = 1
 
 // OpenDict 打开字典出现错误
@@ -17,6 +19,9 @@ const ReadRar ErrorCode = 4
 // SuccessPass 成功的密码
 const SuccessPass ErrorCode = 5
 
+// OpenZip 打开Zip包出现错误
+const OpenZip ErrorCode = 6
+
 // Error 返回错误
 type Error struct {
 	Is   bool      // 是否有错误
@@ -27,4 +32,8 @@ type Error struct {
 
 func NewErr() Error {
 	return Error{Is: false}
+}
+
+func (e *Error) Print() {
+	fmt.Println("出现错误:", e.Msg, " ", e.Err, "错误id", e.Code)
 }
