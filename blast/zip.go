@@ -14,10 +14,14 @@ type zip struct {
 	err    _struct.Error
 }
 
-func (z *zip) Open(file string) {
+func (z *zip) GetType() string {
+	return "zip"
+}
+
+func (z *zip) Open(fileName string) {
 	reader := z.reader
 	err := &z.err
-	reader, err.Err = zipArchiver.OpenReader(file)
+	reader, err.Err = zipArchiver.OpenReader(fileName)
 	if err.Err != nil {
 		err.Is = true
 		err.Msg = "打开zip压缩包出现错误"

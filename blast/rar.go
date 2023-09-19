@@ -9,26 +9,34 @@ import (
 	"os"
 )
 
-func Rar(fileName string) _struct.Error {
+var Rar rar
+
+type rar struct {
+	file   *os.File
+	reader *rardecode.Reader
+}
+
+func (r *rar) GetType() string {
+	return "rar"
+}
+func (r *rar) Open(fileName string) _struct.Error {
 	err := _struct.NewErr()
-	var file *os.File
-	file, err.Err = os.Open(fileName)
+	r.file, err.Err = os.Open(fileName)
 	if err.Err != nil {
 		err.Is = true
 		err.Msg = "打开Rar压缩包出现错误"
 		err.Code = _struct.OpenRar
 		return err
 	}
-	defer file.Close()
-	var reader *rardecode.Reader
-	reader, err.Err = rardecode.NewReader(file, "")
+	defer r.file.Close()
+	r.reader, err.Err = rardecode.NewReader(r.file, "")
 	if err.Err != nil {
 		err.Is = true
 		err.Msg = "读取Rar文件出现错误"
 		err.Code = _struct.ReadRar
 		return err
 	}
-	check := rarCheck(reader)
+	check := r.check()
 	if !check.Is {
 		err.Is = true
 		err.Msg = "此压缩包无需密码"
@@ -37,21 +45,22 @@ func Rar(fileName string) _struct.Error {
 		return err
 	}
 
-	blast := rarBlast(file)
+	blast := r.blast()
 	fmt.Println("尝试：", blast, " ", "√")
 	return err
 }
 
-// rarBlast 进行爆破
-func rarBlast(file *os.File) string {
+// blast 进行爆破
+func (r *rar) blast() string {
+	var err error
 	for i := 0; i < len(dict.Dict); i++ {
-		file.Seek(0, 0)
-		reader, err := rardecode.NewReader(file, dict.Dict[i])
+		r.file.Seek(0, 0)
+		r.reader, err = rardecode.NewReader(r.file, dict.Dict[i])
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		check := rarCheck(reader)
+		check := r.check()
 		if !check.Is {
 			return dict.Dict[i]
 		}
@@ -60,10 +69,10 @@ func rarBlast(file *os.File) string {
 	return ""
 }
 
-// rarCheck检查
-func rarCheck(reader *rardecode.Reader) _struct.Error {
+// check检查
+func (r *rar) check() _struct.Error {
 	err := _struct.NewErr()
-	_, err.Err = reader.Next()
+	_, err.Err = r.reader.Next()
 	if err.Err != nil {
 		err.Is = true
 		err.Msg = "rar密码出现错误"
