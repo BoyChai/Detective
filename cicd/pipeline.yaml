@@ -53,19 +53,19 @@ spec:
                 value: "https://goproxy.cn"
             script: |
               # 编译并构建 Windows x86 平台的可执行文件
-              GOOS=windows GOARCH=amd64 go build -o archive/$(params.tag)/windows_amd64/detective.exe ./cli/build.go
+              GOOS=windows GOARCH=amd64 go build -o archive/$(params.tag)/windows_amd64/detective.exe ./build/cli/main.go
 
               # 编译并构建 Linux x86 平台的可执行文件
-              GOOS=linux GOARCH=amd64 go build -o archive/$(params.tag)/linux_amd64/detective ./cli/build.go
+              GOOS=linux GOARCH=amd64 go build -o archive/$(params.tag)/linux_amd64/detective ./build/cli/main.go
 
               # 编译并构建 macOS x86 平台的可执行文件
-              GOOS=darwin GOARCH=amd64 go build -o archive/$(params.tag)/darwin_amd64/detective ./cli/build.go
+              GOOS=darwin GOARCH=amd64 go build -o archive/$(params.tag)/darwin_amd64/detective ./build/cli/main.go
 
               # 编译并构建 Windows ram 平台的可执行文件
-              GOOS=windows GOARCH=arm go build -o archive/$(params.tag)/windows_arm/detective.exe ./cli/build.go
+              GOOS=windows GOARCH=arm go build -o archive/$(params.tag)/windows_arm/detective.exe ./build/cli/main.go
 
               # 编译并构建 Linux ram 平台的可执行文件
-              GOOS=linux GOARCH=arm go build -o archive/$(params.tag)/linux_arm/detective ./cli/build.go
+              GOOS=linux GOARCH=arm go build -o archive/$(params.tag)/linux_arm/detective ./build/cli/main.go
 
     - name: archive
       params:

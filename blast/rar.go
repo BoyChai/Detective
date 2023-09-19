@@ -19,9 +19,9 @@ type rar struct {
 func (r *rar) GetType() string {
 	return "rar"
 }
-func (r *rar) Open(fileName string) _struct.Error {
+func (r *rar) Open(Dir string) _struct.Error {
 	err := _struct.NewErr()
-	r.file, err.Err = os.Open(fileName)
+	r.file, err.Err = os.Open(Dir)
 	if err.Err != nil {
 		err.Is = true
 		err.Msg = "打开Rar压缩包出现错误"
